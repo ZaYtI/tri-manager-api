@@ -1,6 +1,7 @@
-import { Global, Module } from "@nestjs/common";
+import { Global, Module, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { DatabaseConfig } from "src/config/database";
+import { auth } from "src/utils/auth";
 import { DataSource } from "typeorm";
 
 @Global()
@@ -35,4 +36,36 @@ import { DataSource } from "typeorm";
   ],
   exports: [DataSource],
 })
-export class TypeOrmModule {}
+export class TypeOrmModule implements OnModuleInit {
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly configService: ConfigService,
+  ) {}
+
+  async onModuleInit() {
+    await this.seedAdmin();
+  }
+
+  private async seedAdmin() {
+    const email = this.configService.getOrThrow<string>("ADMIN_EMAIL");
+    const password = this.configService.getOrThrow<string>("ADMIN_PASSWORD");
+
+    if (!email || !password) return;
+
+    const existing = await this.dataSource.query<[{ id: number }]>(
+      'SELECT id FROM "user" WHERE role = $1 LIMIT 1',
+      ["admin"],
+    );
+
+    if (existing.length > 0) {
+      console.log("Admin déjà existant, skip");
+      return;
+    }
+
+    const { user } = (await auth.api.createUser({
+      body: { email, password, name: "Admin", role: "admin" },
+    })) as { user: { email: string } };
+
+    console.log(`Admin créé : ${user.email}`);
+  }
+}
