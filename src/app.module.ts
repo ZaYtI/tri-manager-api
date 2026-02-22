@@ -4,14 +4,16 @@ import { AppService } from "./app.service";
 import { TypeOrmModule } from "./database/typeorm.module";
 import { ConfigModule } from "@nestjs/config";
 import database from "./config/database";
-import { AuthModule } from "@thallesp/nestjs-better-auth";
+import { AuthModule as BetterAuthModule } from "@thallesp/nestjs-better-auth";
+import { UserModule } from "./user/user.module";
 import { auth } from "./utils/auth";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [database] }),
     TypeOrmModule,
-    AuthModule.forRoot({ auth }),
+    BetterAuthModule.forRoot({ auth }),
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

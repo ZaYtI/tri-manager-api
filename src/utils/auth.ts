@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
+import { admin, organization } from "better-auth/plugins";
 
 export const auth = betterAuth({
   database: new Pool({
@@ -13,4 +14,11 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  plugins: [
+    admin({
+      defaultRole: "user",
+      adminRoles: ["admin"],
+    }),
+    organization(),
+  ],
 });
