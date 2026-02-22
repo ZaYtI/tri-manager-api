@@ -1,11 +1,11 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { TypeOrmModule } from './database/typeorm.module';
-import { ConfigModule } from '@nestjs/config';
-import database from './config/database';
-import { AuthModule } from '@thallesp/nestjs-better-auth';
-import { auth } from './utils/auth';
+import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { TypeOrmModule } from "./database/typeorm.module";
+import { ConfigModule } from "@nestjs/config";
+import database from "./config/database";
+import { AuthModule } from "@thallesp/nestjs-better-auth";
+import { auth } from "./utils/auth";
 
 @Module({
   imports: [

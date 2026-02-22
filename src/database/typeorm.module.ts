@@ -1,7 +1,7 @@
-import { Global, Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { DatabaseConfig } from 'src/config/database';
-import { DataSource } from 'typeorm';
+import { Global, Module } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { DatabaseConfig } from "src/config/database";
+import { DataSource } from "typeorm";
 
 @Global()
 @Module({
@@ -12,9 +12,9 @@ import { DataSource } from 'typeorm';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         try {
-          const dbConfig = configService.getOrThrow<DatabaseConfig>('database');
+          const dbConfig = configService.getOrThrow<DatabaseConfig>("database");
           const dataSource = new DataSource({
-            type: 'postgres',
+            type: "postgres",
             host: dbConfig.host,
             port: dbConfig.port,
             username: dbConfig.username,
@@ -24,10 +24,10 @@ import { DataSource } from 'typeorm';
             entities: [`${__dirname}/../**/**.entity{.ts,.js}`],
           });
           await dataSource.initialize();
-          console.log('Database connected successfully');
+          console.log("Database connected successfully");
           return dataSource;
         } catch (error) {
-          console.log('Error connecting to database');
+          console.log("Error connecting to database");
           throw error;
         }
       },
