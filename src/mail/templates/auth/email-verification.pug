@@ -1,0 +1,24 @@
+html
+  head
+    meta(charset='UTF-8')
+    style.
+      body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+      .container { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+      .header { background-color: #10B981; padding: 32px; text-align: center; }
+      .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
+      .body { padding: 32px; color: #333333; }
+      .body p { line-height: 1.6; }
+      .btn { display: inline-block; margin: 24px 0; padding: 14px 28px; background-color: #10B981; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; }
+      .footer { padding: 24px 32px; background-color: #f9f9f9; color: #888; font-size: 13px; text-align: center; }
+  body
+    .container
+      .header
+        h1 Vérifiez votre email ✉️
+      .body
+        p Bonjour #{name},
+        p Merci de vous être inscrit ! Pour finaliser votre inscription, veuillez vérifier votre adresse email en cliquant sur le bouton ci-dessous.
+        a.btn(href=url) Vérifier mon email
+        p Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.
+      .footer
+        p Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :
+        p #{url}
