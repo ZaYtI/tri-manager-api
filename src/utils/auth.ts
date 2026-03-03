@@ -2,6 +2,9 @@ import "dotenv/config";
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
 import { admin, organization } from "better-auth/plugins";
+import { EventEmitter } from "events";
+
+export const authEvents = new EventEmitter();
 
 export const auth = betterAuth({
   database: new Pool({
@@ -11,8 +14,21 @@ export const auth = betterAuth({
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
   }),
+  hooks: {},
   emailAndPassword: {
     enabled: true,
+    minPasswordLength: 8,
+    maxPasswordLength: 40,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: ({ user, url, token }) => {
+      authEvents.emit("reset-password", {
+        email: user.email,
+        name: user.name ?? user.email,
+        url,
+        token,
+      });
+      return Promise.resolve();
+    },
   },
   plugins: [
     admin({
