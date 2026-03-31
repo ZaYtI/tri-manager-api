@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Hook, AfterHook } from "@thallesp/nestjs-better-auth";
 import type { AuthHookContext } from "@thallesp/nestjs-better-auth";
 import { MailService } from "../mail.service";
-import { User } from "better-auth";
+import { User } from "src/user/entities/user.entity";
 
 interface ForgetPassword {
   user: User;
@@ -17,7 +17,6 @@ export class ResetPasswordHook {
 
   @AfterHook("/request-password-reset")
   async handle(ctx: AuthHookContext) {
-    console.log(ctx.body);
     const body = ctx.body as ForgetPassword;
     const email = body?.user.email;
     const url = body?.url;
