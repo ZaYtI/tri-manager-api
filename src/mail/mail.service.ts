@@ -24,7 +24,7 @@ export class MailService {
     });
   }
 
-  async sendEmailVerification(data: {
+  async sendVerificationEmail(data: {
     email: string;
     name: string;
     url: string;
@@ -56,17 +56,6 @@ export class MailService {
         invitedByEmail: data.invitedByEmail,
         organizationName: data.organizationName,
         inviteLink: data.inviteLink,
-      },
-    });
-  }
-
-  async sendWelcome(data: { email: string; name: string }) {
-    await this.mailerService.sendMail({
-      to: data.email,
-      subject: "Bienvenue !",
-      template: "welcome",
-      context: {
-        name: data.name,
       },
     });
   }
