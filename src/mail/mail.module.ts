@@ -4,7 +4,6 @@ import { PugAdapter } from "@nestjs-modules/mailer/dist/adapters/pug.adapter";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { join } from "path";
 import { MailService } from "./mail.service";
-import { SignUpHook } from "./hooks/sign-up.hook";
 
 @Module({
   imports: [
@@ -34,7 +33,7 @@ import { SignUpHook } from "./hooks/sign-up.hook";
       }),
     }),
   ],
-  providers: [MailService, SignUpHook],
+  providers: [MailService],
   exports: [MailService],
 })
 export class MailModule {}
