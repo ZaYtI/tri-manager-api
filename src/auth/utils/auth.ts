@@ -6,6 +6,7 @@ import { sharedAuthEvents } from "../providers/auth-events.provider";
 
 export const auth = betterAuth({
   baseURL: `http://localhost:${process.env.PORT ?? 3000}`,
+  trustedOrigins: [process.env.FRONT_ORIGIN ?? "http://localhost:3000"],
   basePath: "/api/auth",
   database: new Pool({
     host: process.env.DATABASE_HOST,

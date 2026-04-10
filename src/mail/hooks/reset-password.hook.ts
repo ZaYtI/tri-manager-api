@@ -2,13 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Hook, AfterHook } from "@thallesp/nestjs-better-auth";
 import type { AuthHookContext } from "@thallesp/nestjs-better-auth";
 import { MailService } from "../mail.service";
-import { User } from "src/user/entities/user.entity";
-
-interface ForgetPassword {
-  user: User;
-  url: string;
-  token: string;
-}
+import { ForgetPassword } from "../interfaces/forget-password-body.interface";
 
 @Hook()
 @Injectable()

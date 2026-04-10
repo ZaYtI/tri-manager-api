@@ -1,9 +1,8 @@
 import { Global, Module, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { auth } from "src/auth/utils/auth";
-import { DatabaseConfig } from "src/config/database";
-
 import { DataSource } from "typeorm";
+import { DatabaseConfig } from "../config/database";
+import { auth } from "../auth/utils/auth";
 
 @Global()
 @Module({
