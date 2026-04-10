@@ -5,9 +5,9 @@ import {
   AUTH_EVENTS,
   authEventsProvider,
 } from "./providers/auth-events.provider";
-import { MailModule } from "src/mail/mail.module";
-import { MailService } from "src/mail/mail.service";
 import { EventEmitter } from "stream";
+import { MailModule } from "../mail/mail.module";
+import { MailService } from "../mail/mail.service";
 
 @Module({
   imports: [
