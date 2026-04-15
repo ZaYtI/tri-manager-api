@@ -3,6 +3,7 @@ import { MailerModule } from "@nestjs-modules/mailer";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { join } from "path";
 import { MailService } from "./mail.service";
+import { PugAdapter } from "@nestjs-modules/mailer/adapters/pug.adapter";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MailService } from "./mail.service";
         },
         template: {
           dir: join(__dirname, "templates"),
+          adapter: new PugAdapter(),
           options: {
             strict: true,
           },
