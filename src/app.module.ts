@@ -6,6 +6,7 @@ import { ConfigModule } from "@nestjs/config";
 import database from "./config/database";
 import { MailModule } from "./mail/mail.module";
 import { AuthModule } from "./auth/auth.module";
+import { OrganizationModule } from "./organization/organization.module";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AuthModule } from "./auth/auth.module";
     AuthModule,
     TypeOrmModule,
     MailModule,
+    OrganizationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

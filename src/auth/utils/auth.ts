@@ -51,9 +51,7 @@ export const auth = betterAuth({
       adminRoles: ["admin"],
     }),
     organization({
-      allowUserToCreateOrganization: (user) => {
-        return user.role === "admin";
-      },
+      allowUserToCreateOrganization: false,
       roleConfig: {
         owner: { permissions: ["*"] },
         coach: {
