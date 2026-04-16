@@ -5,13 +5,16 @@ import { User } from "~/user/entities/user.entity";
 @Entity("member", { synchronize: false })
 export class MemberEntity {
   @PrimaryColumn()
-  id!: string;
+  id: string;
 
   @Column()
-  userId!: string;
+  userId: string;
 
   @Column()
-  organizationId!: string;
+  organizationId: string;
+
+  @Column({ default: "member" })
+  role: string;
 
   @ManyToOne(() => OrganizationEntity, (org) => org.members)
   @JoinColumn({ name: "organizationId" })

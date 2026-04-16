@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { OrganizationEntity } from "./entities/organization.entity";
+import { MemberEntity } from "./entities/member.entity";
 import { auth } from "~/auth/utils/auth";
 
 @Injectable()
@@ -9,6 +10,9 @@ export class OrganizationService {
   constructor(
     @InjectRepository(OrganizationEntity)
     private readonly orgRepository: Repository<OrganizationEntity>,
+
+    @InjectRepository(MemberEntity) // ← injection manquante
+    private readonly memberRepository: Repository<MemberEntity>,
   ) {}
 
   async findAll(): Promise<OrganizationEntity[]> {
@@ -18,17 +22,22 @@ export class OrganizationService {
       .getMany();
   }
 
+  async findOne(id: string): Promise<OrganizationEntity> {
+    return this.orgRepository.findOneByOrFail({ id });
+  }
+
+  async findMembers(id: string): Promise<MemberEntity[]> {
+    return this.memberRepository.find({
+      where: { organizationId: id },
+      relations: ["user"],
+    });
+  }
+
   async create(name: string, slug: string, ownerId: string) {
     try {
-      const org = await auth.api.createOrganization({
-        body: {
-          name,
-          slug,
-          userId: ownerId,
-        },
+      return await auth.api.createOrganization({
+        body: { name, slug, userId: ownerId },
       });
-
-      return org;
     } catch (error) {
       console.error("Erreur création organisation:", error);
       throw error;
