@@ -4,22 +4,27 @@ import { Repository } from "typeorm";
 import { OrganizationEntity } from "./entities/organization.entity";
 import { MemberEntity } from "./entities/member.entity";
 import { auth } from "~/auth/utils/auth";
+import { paginate, Paginated, PaginateQuery } from "nestjs-paginate";
 
 @Injectable()
 export class OrganizationService {
   constructor(
     @InjectRepository(OrganizationEntity)
     private readonly orgRepository: Repository<OrganizationEntity>,
-
-    @InjectRepository(MemberEntity) // ← injection manquante
+    @InjectRepository(MemberEntity)
     private readonly memberRepository: Repository<MemberEntity>,
   ) {}
 
-  async findAll(): Promise<OrganizationEntity[]> {
-    return this.orgRepository
-      .createQueryBuilder("org")
-      .loadRelationCountAndMap("org.memberCount", "org.members")
-      .getMany();
+  async findAll(query: PaginateQuery): Promise<Paginated<OrganizationEntity>> {
+    return paginate(query, this.orgRepository, {
+      select: ["id", "name", "slug"],
+      sortableColumns: ["name", "slug"],
+      filterableColumns: {
+        name: true,
+        slug: true,
+      },
+      defaultSortBy: [["name", "ASC"]],
+    });
   }
 
   async findOne(id: string): Promise<OrganizationEntity> {

@@ -3,6 +3,7 @@ import { OrganizationService } from "./organization.service";
 import { CreateOrganizationDto } from "./dto/create-organization.dto";
 import { Roles } from "~/auth/role/decorators/role.decorator";
 import { AuthGuard } from "~/auth/guards/auth.guard";
+import { Paginate, PaginateQuery } from "nestjs-paginate";
 
 @Controller("organizations")
 @UseGuards(AuthGuard)
@@ -11,8 +12,8 @@ export class OrganizationController {
 
   @Get()
   @Roles("admin")
-  async findAll() {
-    return this.organizationService.findAll();
+  async findAll(@Paginate() query: PaginateQuery) {
+    return this.organizationService.findAll(query);
   }
 
   @Post()
