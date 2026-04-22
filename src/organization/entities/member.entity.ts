@@ -23,4 +23,7 @@ export class MemberEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: "userId" })
   user: User;
+
+  @Column()
+  createdAt: Date;
 }
