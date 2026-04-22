@@ -14,4 +14,7 @@ export class OrganizationEntity {
 
   @OneToMany(() => MemberEntity, (member: MemberEntity) => member.organization)
   members: MemberEntity[];
+
+  @Column()
+  createdAt: Date;
 }

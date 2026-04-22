@@ -28,13 +28,27 @@ export class OrganizationService {
   }
 
   async findOne(id: string): Promise<OrganizationEntity> {
-    return this.orgRepository.findOneByOrFail({ id });
-  }
+    return this.orgRepository.findOneOrFail({
+      where: { id },
+      relations: ["members", "members.user"],
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        createdAt: true,
 
-  async findMembers(id: string): Promise<MemberEntity[]> {
-    return this.memberRepository.find({
-      where: { organizationId: id },
-      relations: ["user"],
+        members: {
+          id: true,
+          role: true,
+          createdAt: true,
+          user: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
     });
   }
 
