@@ -224,9 +224,11 @@ async function seed() {
       });
 
       const member = (await auth.api.addMember({
-        // `coach` / `athlete` viennent du roleConfig custom : les types
-        // statiques de better-auth ne connaissent que admin/member/owner.
-        body: { userId, organizationId, role: person.role as "member" },
+        body: {
+          userId,
+          organizationId,
+          role: person.role as "coach" | "athlete",
+        },
       })) as { id: string } | null;
 
       if (!member) throw new Error(`Échec ajout membre ${person.email}`);
