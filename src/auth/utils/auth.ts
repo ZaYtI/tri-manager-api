@@ -3,6 +3,25 @@ import { betterAuth } from "better-auth";
 import { Pool } from "pg";
 import { admin, organization } from "better-auth/plugins";
 import { sharedAuthEvents } from "../providers/auth-events.provider";
+import { ac, roles } from "~/organization/config/roles.config";
+
+type AuthEmailArgs = {
+  user: { email: string; name?: string };
+  url: string;
+  token: string;
+};
+
+const emitAuthEmail =
+  (event: "reset-password" | "verify-email") =>
+  ({ user, url, token }: AuthEmailArgs) => {
+    sharedAuthEvents.emit(event, {
+      email: user.email,
+      name: user.name ?? user.email,
+      url,
+      token,
+    });
+    return Promise.resolve();
+  };
 
 export const auth = betterAuth({
   baseURL: `http://localhost:${process.env.PORT ?? 3000}`,
@@ -15,55 +34,38 @@ export const auth = betterAuth({
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
   }),
-  hooks: {},
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
     maxPasswordLength: 40,
     revokeSessionsOnPasswordReset: true,
     requireEmailVerification: true,
+    sendResetPassword: emitAuthEmail("reset-password"),
   },
   emailVerification: {
     enabled: true,
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({
-      user,
-      url,
-      token,
-    }: {
-      user: { email: string; name?: string };
-      url: string;
-      token: string;
-    }) => {
-      sharedAuthEvents.emit("verify-email", {
-        email: user.email,
-        name: user.name ?? user.email,
-        url,
-        token,
-      });
-      return Promise.resolve();
-    },
+    sendVerificationEmail: emitAuthEmail("verify-email"),
   },
   plugins: [
     admin({
       defaultRole: "user",
       adminRoles: ["admin"],
+      defaultBanReason: "Violation des conditions d'utilisation",
+      bannedUserMessage:
+        "Votre compte a été suspendu. Contactez le support si vous pensez qu'il s'agit d'une erreur.",
+      impersonationSessionDuration: 60 * 60,
+      allowImpersonatingAdmins: false,
     }),
     organization({
       allowUserToCreateOrganization: false,
-      roleConfig: {
-        owner: { permissions: ["*"] },
-        coach: {
-          permissions: [
-            "training:create",
-            "training:update",
-            "training:delete",
-          ],
-        },
-        athlete: {
-          permissions: ["training:read", "training:join"],
-        },
+      creatorRole: "owner",
+      ac,
+      roles,
+      dynamicAccessControl: {
+        enabled: true,
+        maximumRolesPerOrganization: 25,
       },
     }),
   ],
