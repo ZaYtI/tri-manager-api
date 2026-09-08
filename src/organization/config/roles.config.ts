@@ -24,7 +24,7 @@ export const ORG_PERMISSION_STATEMENTS = {
   organization: ["update", "delete"],
   member: ["create", "read", "update", "delete"],
   invitation: ["create", "cancel"],
-  ac: ["create", "read", "update", "delete"],
+  role: ["create", "read", "update", "delete"],
 } as const;
 
 export type OrgPermissions = {
@@ -37,7 +37,7 @@ const OWNER_PERMISSIONS = {
   organization: ["update", "delete"],
   member: ["create", "read", "update", "delete"],
   invitation: ["create", "cancel"],
-  ac: ["create", "read", "update", "delete"],
+  role: ["create", "read", "update", "delete"],
 } as const;
 
 const COACH_PERMISSIONS = {
