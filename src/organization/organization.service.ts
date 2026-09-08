@@ -17,6 +17,7 @@ import { OrganizationRoleEntity } from "./entities/organization-role.entity";
 import { InvitationEntity } from "./entities/invitation.entity";
 import {
   ORG_PERMISSION_STATEMENTS,
+  ORG_ROLES,
   ORG_ROLES_PUBLIC,
   OrgPermissions,
   OrgRolePublic,
@@ -95,6 +96,20 @@ export class OrganizationService {
 
   getStatements() {
     return ORG_PERMISSION_STATEMENTS;
+  }
+
+  async resolveRolePermissions(
+    orgId: string,
+    role: string,
+  ): Promise<OrgPermissions> {
+    if (Object.prototype.hasOwnProperty.call(ORG_ROLES, role)) {
+      return ORG_ROLES[role].permissions;
+    }
+    const custom = await this.customRoles.findOneBy({
+      organizationId: orgId,
+      role,
+    });
+    return custom ? parsePermission(custom.permission) : {};
   }
 
   async findOne(id: string): Promise<OrganizationDetail> {
