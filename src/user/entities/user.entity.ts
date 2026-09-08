@@ -28,6 +28,15 @@ export class User {
   @Column({ nullable: true })
   image: string;
 
+  @Column({ type: "boolean", nullable: true })
+  banned: boolean | null;
+
+  @Column({ type: "text", nullable: true })
+  banReason: string | null;
+
+  @Column({ type: "timestamptz", nullable: true })
+  banExpires: Date | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

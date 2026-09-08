@@ -110,7 +110,15 @@ export class OrganizationService {
           id: true,
           role: true,
           createdAt: true,
-          user: { id: true, name: true, email: true, image: true },
+          user: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            role: true,
+            emailVerified: true,
+            banned: true,
+          },
         },
       },
     });
