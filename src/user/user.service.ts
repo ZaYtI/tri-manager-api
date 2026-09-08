@@ -23,6 +23,8 @@ export class UserService {
         "role",
         "emailVerified",
         "image",
+        "banned",
+        "banReason",
         "createdAt",
         "updatedAt",
       ],
