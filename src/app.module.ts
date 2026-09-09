@@ -8,7 +8,6 @@ import { MailModule } from "./mail/mail.module";
 import { AuthModule } from "./auth/auth.module";
 import { OrganizationModule } from "./organization/organization.module";
 import { UserModule } from "./user/user.module";
-import { ClubModule } from "./club/club.module";
 
 @Module({
   imports: [
@@ -18,7 +17,6 @@ import { ClubModule } from "./club/club.module";
     MailModule,
     OrganizationModule,
     UserModule,
-    ClubModule,
   ],
   controllers: [AppController],
   providers: [AppService],
