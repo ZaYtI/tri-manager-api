@@ -6,6 +6,7 @@ import { ConfigModule } from "@nestjs/config";
 import database from "./config/database";
 import { MailModule } from "./mail/mail.module";
 import { AuthModule } from "./auth/auth.module";
+import { AuditModule } from "./audit/audit.module";
 import { OrganizationModule } from "./organization/organization.module";
 import { UserModule } from "./user/user.module";
 
@@ -14,6 +15,7 @@ import { UserModule } from "./user/user.module";
     ConfigModule.forRoot({ isGlobal: true, load: [database] }),
     AuthModule,
     TypeOrmModule,
+    AuditModule,
     MailModule,
     OrganizationModule,
     UserModule,

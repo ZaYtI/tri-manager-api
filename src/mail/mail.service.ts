@@ -39,4 +39,24 @@ export class MailService {
       },
     });
   }
+
+  async sendOrganizationInvitation(data: {
+    email: string;
+    invitedByName: string;
+    invitedByEmail: string;
+    organizationName: string;
+    inviteLink: string;
+  }) {
+    await this.mailerService.sendMail({
+      to: data.email,
+      subject: `Invitation à rejoindre ${data.organizationName}`,
+      template: "organization/organization-invitation",
+      context: {
+        invitedByName: data.invitedByName,
+        invitedByEmail: data.invitedByEmail,
+        organizationName: data.organizationName,
+        inviteLink: data.inviteLink,
+      },
+    });
+  }
 }

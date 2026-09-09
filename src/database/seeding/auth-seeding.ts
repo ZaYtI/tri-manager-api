@@ -1,4 +1,8 @@
 import { auth } from "../../auth/utils/auth";
+import {
+  ORG_DEFAULT_MEMBER_ROLE,
+  type OrgRoleName,
+} from "../../organization/role/config/access-control";
 
 export interface SeedUserInput {
   name: string;
@@ -24,28 +28,26 @@ export async function createUser(input: SeedUserInput): Promise<string> {
 export async function createOrganization(input: {
   name: string;
   slug: string;
-  ownerId: string;
+  creatorId: string;
 }): Promise<string> {
   const created = (await auth.api.createOrganization({
-    body: { name: input.name, slug: input.slug, userId: input.ownerId },
+    body: { name: input.name, slug: input.slug, userId: input.creatorId },
   })) as { id: string } | null;
 
   if (!created) throw new Error(`Échec création organisation ${input.slug}`);
   return created.id;
 }
 
-export type OrgMemberRole = "owner" | "admin" | "member";
-
 export async function addMember(input: {
   userId: string;
   organizationId: string;
-  role?: OrgMemberRole;
+  role?: OrgRoleName;
 }): Promise<string> {
   const member = (await auth.api.addMember({
     body: {
       userId: input.userId,
       organizationId: input.organizationId,
-      role: input.role ?? "member",
+      role: input.role ?? ORG_DEFAULT_MEMBER_ROLE,
     },
   })) as { id: string } | null;
 

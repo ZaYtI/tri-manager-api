@@ -11,6 +11,8 @@ import {
 import { Paginate, PaginateQuery } from "nestjs-paginate";
 import { AuthGuard, Roles } from "@thallesp/nestjs-better-auth";
 
+import { CurrentActor } from "~/audit/current-actor.decorator";
+import { AuditActor } from "~/audit/audit.types";
 import { OrganizationService } from "./organization.service";
 import {
   CreateOrganizationDto,
@@ -29,8 +31,11 @@ export class OrganizationController {
   }
 
   @Post()
-  create(@Body() body: CreateOrganizationDto) {
-    return this.organizations.create(body.name, body.slug, body.ownerId);
+  create(
+    @Body() body: CreateOrganizationDto,
+    @CurrentActor() actor: AuditActor,
+  ) {
+    return this.organizations.create(body.name, body.slug, body.ownerId, actor);
   }
 
   @Get(":id")
@@ -39,12 +44,16 @@ export class OrganizationController {
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() body: UpdateOrganizationDto) {
-    return this.organizations.update(id, body);
+  update(
+    @Param("id") id: string,
+    @Body() body: UpdateOrganizationDto,
+    @CurrentActor() actor: AuditActor,
+  ) {
+    return this.organizations.update(id, body, actor);
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.organizations.remove(id);
+  remove(@Param("id") id: string, @CurrentActor() actor: AuditActor) {
+    return this.organizations.remove(id, actor);
   }
 }

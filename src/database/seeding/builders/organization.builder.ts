@@ -22,28 +22,38 @@ export function buildOrganization(
 
 export interface MakeOrganizationOptions {
   organization?: Partial<OrganizationInput>;
-  owner?: Partial<SeedUserInput>;
-  members?: number;
+  president?: Partial<SeedUserInput>;
+  coaches?: number;
+  athletes?: number;
 }
 
 export async function makeOrganization(
   options: MakeOrganizationOptions = {},
 ): Promise<{
   id: string;
-  ownerId: string;
-  memberIds: string[];
+  presidentId: string;
+  coachIds: string[];
+  athleteIds: string[];
 }> {
-  const { id: ownerId } = await makeUser(options.owner);
+  const { id: presidentId } = await makeUser(options.president);
   const { name, slug } = buildOrganization(options.organization);
-  const id = await createOrganization({ name, slug, ownerId });
+  const id = await createOrganization({ name, slug, creatorId: presidentId });
 
-  const memberIds: string[] = [];
-  for (let i = 0; i < (options.members ?? 0); i++) {
+  const coachIds: string[] = [];
+  for (let i = 0; i < (options.coaches ?? 0); i++) {
     const { id: userId } = await makeUser();
-    memberIds.push(
-      await addMember({ userId, organizationId: id, role: "member" }),
+    coachIds.push(
+      await addMember({ userId, organizationId: id, role: "coach" }),
     );
   }
 
-  return { id, ownerId, memberIds };
+  const athleteIds: string[] = [];
+  for (let i = 0; i < (options.athletes ?? 0); i++) {
+    const { id: userId } = await makeUser();
+    athleteIds.push(
+      await addMember({ userId, organizationId: id, role: "athlete" }),
+    );
+  }
+
+  return { id, presidentId, coachIds, athleteIds };
 }

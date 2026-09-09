@@ -11,6 +11,9 @@ export class OrganizationEntity {
   @Column()
   slug: string;
 
+  @Column({ default: true })
+  active: boolean;
+
   @Column()
   createdAt: Date;
 }

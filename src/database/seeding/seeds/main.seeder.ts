@@ -6,9 +6,14 @@ import { ensureAdmin } from "../auth-seeding";
 import { DEFAULT_SEED_PASSWORD } from "../builders/user.builder";
 import { makeOrganization } from "../builders/organization.builder";
 
-const ORG_COUNT = Number.parseInt(process.env.SEED_ORG_COUNT ?? "3", 10);
-const MIN_MEMBERS = Number.parseInt(process.env.SEED_MIN_MEMBERS ?? "1", 10);
-const MAX_MEMBERS = Number.parseInt(process.env.SEED_MAX_MEMBERS ?? "5", 10);
+const num = (key: string, fallback: number) =>
+  Number.parseInt(process.env[key] ?? String(fallback), 10);
+
+const ORG_COUNT = num("SEED_ORG_COUNT", 3);
+const MIN_COACHES = num("SEED_MIN_COACHES", 1);
+const MAX_COACHES = num("SEED_MAX_COACHES", 2);
+const MIN_ATHLETES = num("SEED_MIN_ATHLETES", 4);
+const MAX_ATHLETES = num("SEED_MAX_ATHLETES", 10);
 
 export class MainSeeder implements Seeder {
   track = false;
@@ -19,10 +24,17 @@ export class MainSeeder implements Seeder {
     await ensureAdmin(dataSource);
 
     for (let i = 0; i < ORG_COUNT; i++) {
-      const members = faker.number.int({ min: MIN_MEMBERS, max: MAX_MEMBERS });
-      const { id, memberIds } = await makeOrganization({ members });
+      const coaches = faker.number.int({ min: MIN_COACHES, max: MAX_COACHES });
+      const athletes = faker.number.int({
+        min: MIN_ATHLETES,
+        max: MAX_ATHLETES,
+      });
+      const { id, coachIds, athleteIds } = await makeOrganization({
+        coaches,
+        athletes,
+      });
       console.log(
-        `  Orga ${i + 1}/${ORG_COUNT} — ${id} (${memberIds.length} membres)`,
+        `  Orga ${i + 1}/${ORG_COUNT} — ${id} — 1 président, ${coachIds.length} coach(s), ${athleteIds.length} athlète(s)`,
       );
     }
 
