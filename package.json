@@ -18,9 +18,16 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:migrate": "better-auth migrate --config src/auth/utils/auth.ts -y",
-    "seed": "ts-node --transpile-only -r tsconfig-paths/register src/seed.ts",
-    "db:reset": "ts-node --transpile-only -r tsconfig-paths/register src/seed.ts --reset-only"
+    "db:migrate:auth": "better-auth migrate --config src/auth/utils/auth.ts -y",
+    "migration:create": "typeorm-ts-node-commonjs migration:create src/database/migrations/Migration",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/database/data-source.ts src/database/migrations/Migration",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts",
+    "migration:show": "typeorm-ts-node-commonjs migration:show -d src/database/data-source.ts",
+    "db:migrate": "npm run db:migrate:auth && npm run migration:run",
+    "seed": "ts-node --transpile-only -r tsconfig-paths/register src/database/seeding/run-seed.ts",
+    "db:reset": "ts-node --transpile-only -r tsconfig-paths/register src/database/reset.ts",
+    "db:refresh": "npm run db:migrate && npm run db:reset && npm run seed"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.3.4",
@@ -47,6 +54,7 @@
     "@better-auth/cli": "^1.4.22",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
+    "@faker-js/faker": "^10.6.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
@@ -68,6 +76,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "typeorm-extension": "^3.9.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },

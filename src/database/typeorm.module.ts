@@ -21,7 +21,7 @@ import { auth } from "../auth/utils/auth";
             username: dbConfig.username,
             password: dbConfig.password,
             database: dbConfig.database,
-            synchronize: true,
+            synchronize: false,
             entities: [`${__dirname}/../**/**.entity{.ts,.js}`],
           });
           await dataSource.initialize();
