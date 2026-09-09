@@ -1,12 +1,12 @@
-import { OrgPermissions } from "../config/roles.config";
+import { ClubPermissions } from "../config/roles.config";
 
-export class CreateOrganizationDto {
+export class CreateClubDto {
   name: string;
   slug: string;
   ownerId: string;
 }
 
-export class UpdateOrganizationDto {
+export class UpdateClubDto {
   name?: string;
   slug?: string;
 }
@@ -22,9 +22,9 @@ export class MemberRoleDto {
 
 export class CreateRoleDto {
   role: string;
-  permissions: OrgPermissions;
+  permissions: ClubPermissions;
 }
 
 export class UpdateRoleDto {
-  permissions: OrgPermissions;
+  permissions: ClubPermissions;
 }

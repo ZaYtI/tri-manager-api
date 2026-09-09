@@ -1,6 +1,6 @@
 import { createAccessControl } from "better-auth/plugins/access";
 
-export const ORG_ROLE_ICONS = [
+export const CLUB_ROLE_ICONS = [
   "crown",
   "megaphone",
   "bike",
@@ -18,20 +18,20 @@ export const ORG_ROLE_ICONS = [
   "handshake",
 ] as const;
 
-export type OrgRoleIcon = (typeof ORG_ROLE_ICONS)[number];
+export type ClubRoleIcon = (typeof CLUB_ROLE_ICONS)[number];
 
-export const ORG_PERMISSION_STATEMENTS = {
+export const CLUB_PERMISSION_STATEMENTS = {
   organization: ["update", "delete"],
   member: ["create", "read", "update", "delete"],
   invitation: ["create", "cancel"],
   role: ["create", "read", "update", "delete"],
 } as const;
 
-export type OrgPermissions = {
-  -readonly [K in keyof typeof ORG_PERMISSION_STATEMENTS]?: string[];
+export type ClubPermissions = {
+  -readonly [K in keyof typeof CLUB_PERMISSION_STATEMENTS]?: string[];
 };
 
-export const ac = createAccessControl(ORG_PERMISSION_STATEMENTS);
+export const ac = createAccessControl(CLUB_PERMISSION_STATEMENTS);
 
 const OWNER_PERMISSIONS = {
   organization: ["update", "delete"],
@@ -52,7 +52,7 @@ export const ownerRole = ac.newRole(OWNER_PERMISSIONS);
 export const coachRole = ac.newRole(COACH_PERMISSIONS);
 export const athleteRole = ac.newRole(ATHLETE_PERMISSIONS);
 
-const toPlain = (p: Record<string, readonly string[]>): OrgPermissions =>
+const toPlain = (p: Record<string, readonly string[]>): ClubPermissions =>
   Object.fromEntries(Object.entries(p).map(([k, v]) => [k, [...v]]));
 
 export const roles = {
@@ -61,14 +61,14 @@ export const roles = {
   athlete: athleteRole,
 };
 
-interface OrgRoleDisplay {
+interface ClubRoleDisplay {
   label: string;
   color: string | null;
-  icon: OrgRoleIcon | null;
-  permissions: OrgPermissions;
+  icon: ClubRoleIcon | null;
+  permissions: ClubPermissions;
 }
 
-export const ORG_ROLES: Record<string, OrgRoleDisplay> = {
+export const CLUB_ROLES: Record<string, ClubRoleDisplay> = {
   owner: {
     label: "Propriétaire",
     color: "#f59e0b",
@@ -89,24 +89,24 @@ export const ORG_ROLES: Record<string, OrgRoleDisplay> = {
   },
 };
 
-export interface OrgRolePublic {
+export interface ClubRolePublic {
   role: string;
   label: string;
   color: string | null;
-  icon: OrgRoleIcon | null;
-  permissions: OrgPermissions;
+  icon: ClubRoleIcon | null;
+  permissions: ClubPermissions;
   system: boolean;
 }
 
-export const ORG_ROLES_PUBLIC: OrgRolePublic[] = Object.entries(ORG_ROLES).map(
-  ([role, cfg]) => ({
-    role,
-    label: cfg.label,
-    color: cfg.color,
-    icon: cfg.icon,
-    permissions: cfg.permissions,
-    system: true,
-  }),
-);
+export const CLUB_ROLES_PUBLIC: ClubRolePublic[] = Object.entries(
+  CLUB_ROLES,
+).map(([role, cfg]) => ({
+  role,
+  label: cfg.label,
+  color: cfg.color,
+  icon: cfg.icon,
+  permissions: cfg.permissions,
+  system: true,
+}));
 
-export const SYSTEM_ROLE_NAMES = Object.keys(ORG_ROLES);
+export const SYSTEM_ROLE_NAMES = Object.keys(CLUB_ROLES);

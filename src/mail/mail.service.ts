@@ -40,21 +40,21 @@ export class MailService {
     });
   }
 
-  async sendOrganizationInvitation(data: {
+  async sendClubInvitation(data: {
     email: string;
     invitedByName: string;
     invitedByEmail: string;
-    organizationName: string;
+    clubName: string;
     inviteLink: string;
   }) {
     await this.mailerService.sendMail({
       to: data.email,
-      subject: `Invitation à rejoindre ${data.organizationName}`,
-      template: "organization/organization-invitation",
+      subject: `Invitation à rejoindre ${data.clubName}`,
+      template: "club/club-invitation",
       context: {
         invitedByName: data.invitedByName,
         invitedByEmail: data.invitedByEmail,
-        organizationName: data.organizationName,
+        clubName: data.clubName,
         inviteLink: data.inviteLink,
       },
     });

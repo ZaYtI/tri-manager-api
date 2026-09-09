@@ -6,7 +6,6 @@ import { ConfigModule } from "@nestjs/config";
 import database from "./config/database";
 import { MailModule } from "./mail/mail.module";
 import { AuthModule } from "./auth/auth.module";
-import { OrganizationModule } from "./organization/organization.module";
 import { UserModule } from "./user/user.module";
 import { ClubModule } from "./club/club.module";
 
@@ -16,7 +15,6 @@ import { ClubModule } from "./club/club.module";
     AuthModule,
     TypeOrmModule,
     MailModule,
-    OrganizationModule,
     UserModule,
     ClubModule,
   ],
