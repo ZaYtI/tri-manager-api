@@ -11,26 +11,22 @@ import { paginate, Paginated, PaginateQuery } from "nestjs-paginate";
 import { auth } from "~/auth/utils/auth";
 import { MailService } from "~/mail/mail.service";
 import { User } from "~/user/entities/user.entity";
-import { OrganizationEntity } from "./entities/organization.entity";
+import { ClubEntity } from "./entities/club.entity";
 import { MemberEntity } from "./entities/member.entity";
-import { OrganizationRoleEntity } from "./entities/organization-role.entity";
+import { ClubRoleEntity } from "./entities/club-role.entity";
 import { InvitationEntity } from "./entities/invitation.entity";
 import {
-  ORG_PERMISSION_STATEMENTS,
-  ORG_ROLES,
-  ORG_ROLES_PUBLIC,
-  OrgPermissions,
-  OrgRolePublic,
+  CLUB_PERMISSION_STATEMENTS,
+  CLUB_ROLES,
+  CLUB_ROLES_PUBLIC,
+  ClubPermissions,
+  ClubRolePublic,
   SYSTEM_ROLE_NAMES,
 } from "./config/roles.config";
-import {
-  CreateRoleDto,
-  UpdateOrganizationDto,
-  UpdateRoleDto,
-} from "./dto/organization.dto";
+import { CreateRoleDto, UpdateClubDto, UpdateRoleDto } from "./dto/club.dto";
 
-export type OrganizationDetail = OrganizationEntity & {
-  roles: OrgRolePublic[];
+export type ClubDetail = ClubEntity & {
+  roles: ClubRolePublic[];
 };
 
 const INVITATION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
@@ -46,12 +42,12 @@ function slugifyRole(value: string) {
 }
 
 /** Ne conserve que les couples ressource/action présents dans le catalogue. */
-function sanitizePermissions(input: unknown): OrgPermissions {
-  const catalogue = ORG_PERMISSION_STATEMENTS as Record<
+function sanitizePermissions(input: unknown): ClubPermissions {
+  const catalogue = CLUB_PERMISSION_STATEMENTS as Record<
     string,
     readonly string[]
   >;
-  const clean: OrgPermissions = {};
+  const clean: ClubPermissions = {};
 
   for (const [resource, actions] of Object.entries(
     (input as Record<string, unknown>) ?? {},
@@ -62,20 +58,20 @@ function sanitizePermissions(input: unknown): OrgPermissions {
       (action): action is string =>
         typeof action === "string" && allowed.includes(action),
     );
-    if (kept.length) clean[resource as keyof OrgPermissions] = kept;
+    if (kept.length) clean[resource as keyof ClubPermissions] = kept;
   }
   return clean;
 }
 
 @Injectable()
-export class OrganizationService {
+export class ClubAdminService {
   constructor(
-    @InjectRepository(OrganizationEntity)
-    private readonly organizations: Repository<OrganizationEntity>,
+    @InjectRepository(ClubEntity)
+    private readonly clubs: Repository<ClubEntity>,
     @InjectRepository(MemberEntity)
     private readonly members: Repository<MemberEntity>,
-    @InjectRepository(OrganizationRoleEntity)
-    private readonly customRoles: Repository<OrganizationRoleEntity>,
+    @InjectRepository(ClubRoleEntity)
+    private readonly customRoles: Repository<ClubRoleEntity>,
     @InjectRepository(InvitationEntity)
     private readonly invitations: Repository<InvitationEntity>,
     @InjectRepository(User)
@@ -83,10 +79,10 @@ export class OrganizationService {
     private readonly mail: MailService,
   ) {}
 
-  /* ── Organisation ─────────────────────────────────────────── */
+  /* ── club ─────────────────────────────────────────── */
 
-  findAll(query: PaginateQuery): Promise<Paginated<OrganizationEntity>> {
-    return paginate(query, this.organizations, {
+  findAll(query: PaginateQuery): Promise<Paginated<ClubEntity>> {
+    return paginate(query, this.clubs, {
       select: ["id", "name", "slug"],
       sortableColumns: ["name", "slug"],
       filterableColumns: { name: true, slug: true },
@@ -95,25 +91,25 @@ export class OrganizationService {
   }
 
   getStatements() {
-    return ORG_PERMISSION_STATEMENTS;
+    return CLUB_PERMISSION_STATEMENTS;
   }
 
   async resolveRolePermissions(
-    orgId: string,
+    clubId: string,
     role: string,
-  ): Promise<OrgPermissions> {
-    if (Object.prototype.hasOwnProperty.call(ORG_ROLES, role)) {
-      return ORG_ROLES[role].permissions;
+  ): Promise<ClubPermissions> {
+    if (Object.prototype.hasOwnProperty.call(CLUB_ROLES, role)) {
+      return CLUB_ROLES[role].permissions;
     }
     const custom = await this.customRoles.findOneBy({
-      organizationId: orgId,
+      organizationId: clubId,
       role,
     });
     return custom ? parsePermission(custom.permission) : {};
   }
 
-  async findOne(id: string): Promise<OrganizationDetail> {
-    const organization = await this.organizations.findOneOrFail({
+  async findOne(id: string): Promise<ClubDetail> {
+    const club = await this.clubs.findOneOrFail({
       where: { id },
       relations: ["members", "members.user"],
       select: {
@@ -137,7 +133,7 @@ export class OrganizationService {
         },
       },
     });
-    return { ...organization, roles: await this.listRoles(id) };
+    return { ...club, roles: await this.listRoles(id) };
   }
 
   async create(name: string, slug: string, ownerId: string) {
@@ -146,48 +142,48 @@ export class OrganizationService {
         body: { name, slug, userId: ownerId },
       });
     } catch (error) {
-      console.error("Erreur création organisation:", error);
+      console.error("Erreur création club:", error);
       throw error;
     }
   }
 
-  async update(id: string, data: UpdateOrganizationDto) {
-    const organization = await this.getOrgOrFail(id);
+  async update(id: string, data: UpdateClubDto) {
+    const club = await this.getClubOrFail(id);
 
-    if (data.slug && data.slug !== organization.slug) {
-      const taken = await this.organizations.findOneBy({ slug: data.slug });
+    if (data.slug && data.slug !== club.slug) {
+      const taken = await this.clubs.findOneBy({ slug: data.slug });
       if (taken) throw new BadRequestException("Ce slug est déjà utilisé");
-      organization.slug = data.slug;
+      club.slug = data.slug;
     }
-    if (data.name) organization.name = data.name;
+    if (data.name) club.name = data.name;
 
-    await this.organizations.save(organization);
+    await this.clubs.save(club);
     return this.findOne(id);
   }
 
   async remove(id: string) {
-    await this.getOrgOrFail(id);
-    await this.organizations.delete({ id });
+    await this.getClubOrFail(id);
+    await this.clubs.delete({ id });
     return { success: true };
   }
 
   /* ── Membres ──────────────────────────────────────────────── */
 
-  async updateMemberRole(orgId: string, memberId: string, role: string) {
-    const member = await this.getMemberOrFail(orgId, memberId);
-    await this.assertRoleExists(orgId, role);
+  async updateMemberRole(clubId: string, memberId: string, role: string) {
+    const member = await this.getMemberOrFail(clubId, memberId);
+    await this.assertRoleExists(clubId, role);
 
     member.role = role;
     await this.members.save(member);
-    return this.findOne(orgId);
+    return this.findOne(clubId);
   }
 
-  async removeMember(orgId: string, memberId: string) {
-    const member = await this.getMemberOrFail(orgId, memberId);
+  async removeMember(clubId: string, memberId: string) {
+    const member = await this.getMemberOrFail(clubId, memberId);
 
     if (member.role === "owner") {
       const owners = await this.members.countBy({
-        organizationId: orgId,
+        organizationId: clubId,
         role: "owner",
       });
       if (owners <= 1) {
@@ -198,22 +194,22 @@ export class OrganizationService {
     }
 
     await this.members.delete({ id: memberId });
-    return this.findOne(orgId);
+    return this.findOne(clubId);
   }
 
   async inviteMember(
-    orgId: string,
+    clubId: string,
     email: string,
     role: string,
     inviterId: string,
   ) {
-    const organization = await this.getOrgOrFail(orgId);
-    await this.assertRoleExists(orgId, role);
+    const club = await this.getClubOrFail(clubId);
+    await this.assertRoleExists(clubId, role);
 
     const alreadyMember = await this.members
       .createQueryBuilder("member")
       .innerJoin("member.user", "user")
-      .where("member.organizationId = :orgId", { orgId })
+      .where("member.organizationId = :clubId", { clubId })
       .andWhere("LOWER(user.email) = LOWER(:email)", { email })
       .getCount();
     if (alreadyMember > 0) throw new BadRequestException("Déjà membre");
@@ -226,7 +222,7 @@ export class OrganizationService {
     const invitation = await this.invitations.save(
       this.invitations.create({
         id: randomUUID(),
-        organizationId: orgId,
+        organizationId: clubId,
         email,
         role,
         status: "pending",
@@ -236,27 +232,27 @@ export class OrganizationService {
     );
 
     const frontOrigin = process.env.FRONT_ORIGIN ?? "http://localhost:3000";
-    await this.mail.sendOrganizationInvitation({
+    await this.mail.sendClubInvitation({
       email,
       invitedByName: inviter?.name ?? "Un administrateur",
       invitedByEmail: inviter?.email ?? "",
-      organizationName: organization.name,
+      clubName: club.name,
       inviteLink: `${frontOrigin}/accept-invitation/${invitation.id}`,
     });
 
     return invitation;
   }
 
-  listInvitations(orgId: string) {
+  listInvitations(clubId: string) {
     return this.invitations.find({
-      where: { organizationId: orgId, status: "pending" },
+      where: { organizationId: clubId, status: "pending" },
       order: { createdAt: "DESC" },
     });
   }
 
-  async cancelInvitation(orgId: string, invitationId: string) {
+  async cancelInvitation(clubId: string, invitationId: string) {
     await this.invitations.update(
-      { id: invitationId, organizationId: orgId },
+      { id: invitationId, organizationId: clubId },
       { status: "canceled" },
     );
     return { success: true };
@@ -264,11 +260,11 @@ export class OrganizationService {
 
   /* ── Rôles personnalisés ──────────────────────────────────── */
 
-  async listRoles(orgId: string): Promise<OrgRolePublic[]> {
-    const custom = await this.customRoles.findBy({ organizationId: orgId });
+  async listRoles(clubId: string): Promise<ClubRolePublic[]> {
+    const custom = await this.customRoles.findBy({ organizationId: clubId });
     return [
-      ...ORG_ROLES_PUBLIC,
-      ...custom.map<OrgRolePublic>((entity) => ({
+      ...CLUB_ROLES_PUBLIC,
+      ...custom.map<ClubRolePublic>((entity) => ({
         role: entity.role,
         label: entity.role.charAt(0).toUpperCase() + entity.role.slice(1),
         color: null,
@@ -279,8 +275,8 @@ export class OrganizationService {
     ];
   }
 
-  async createRole(orgId: string, { role, permissions }: CreateRoleDto) {
-    await this.getOrgOrFail(orgId);
+  async createRole(clubId: string, { role, permissions }: CreateRoleDto) {
+    await this.getClubOrFail(clubId);
 
     const name = slugifyRole(role);
     if (!name) throw new BadRequestException("Nom de rôle invalide");
@@ -288,7 +284,7 @@ export class OrganizationService {
       throw new BadRequestException("Ce nom est réservé");
     }
     if (
-      await this.customRoles.findOneBy({ organizationId: orgId, role: name })
+      await this.customRoles.findOneBy({ organizationId: clubId, role: name })
     ) {
       throw new BadRequestException("Ce rôle existe déjà");
     }
@@ -296,32 +292,32 @@ export class OrganizationService {
     await this.customRoles.save(
       this.customRoles.create({
         id: randomUUID(),
-        organizationId: orgId,
+        organizationId: clubId,
         role: name,
         permission: JSON.stringify(sanitizePermissions(permissions)),
         createdAt: new Date(),
       }),
     );
-    return this.listRoles(orgId);
+    return this.listRoles(clubId);
   }
 
   async updateRole(
-    orgId: string,
+    clubId: string,
     roleId: string,
     { permissions }: UpdateRoleDto,
   ) {
-    const entity = await this.getCustomRoleOrFail(orgId, roleId);
+    const entity = await this.getCustomRoleOrFail(clubId, roleId);
     entity.permission = JSON.stringify(sanitizePermissions(permissions));
     entity.updatedAt = new Date();
     await this.customRoles.save(entity);
-    return this.listRoles(orgId);
+    return this.listRoles(clubId);
   }
 
-  async deleteRole(orgId: string, roleId: string) {
-    const entity = await this.getCustomRoleOrFail(orgId, roleId);
+  async deleteRole(clubId: string, roleId: string) {
+    const entity = await this.getCustomRoleOrFail(clubId, roleId);
 
     const inUse = await this.members.countBy({
-      organizationId: orgId,
+      organizationId: clubId,
       role: entity.role,
     });
     if (inUse > 0) {
@@ -331,46 +327,46 @@ export class OrganizationService {
     }
 
     await this.customRoles.delete({ id: roleId });
-    return this.listRoles(orgId);
+    return this.listRoles(clubId);
   }
 
   /* ── Helpers ──────────────────────────────────────────────── */
 
-  private async getOrgOrFail(id: string) {
-    const organization = await this.organizations.findOneBy({ id });
-    if (!organization) throw new NotFoundException("Organisation introuvable");
-    return organization;
+  private async getClubOrFail(id: string) {
+    const club = await this.clubs.findOneBy({ id });
+    if (!club) throw new NotFoundException("club introuvable");
+    return club;
   }
 
-  private async getMemberOrFail(orgId: string, memberId: string) {
+  private async getMemberOrFail(clubId: string, memberId: string) {
     const member = await this.members.findOneBy({
       id: memberId,
-      organizationId: orgId,
+      organizationId: clubId,
     });
     if (!member) throw new NotFoundException("Membre introuvable");
     return member;
   }
 
-  private async getCustomRoleOrFail(orgId: string, roleId: string) {
+  private async getCustomRoleOrFail(clubId: string, roleId: string) {
     const entity = await this.customRoles.findOneBy({
       id: roleId,
-      organizationId: orgId,
+      organizationId: clubId,
     });
     if (!entity) throw new NotFoundException("Rôle introuvable");
     return entity;
   }
 
-  private async assertRoleExists(orgId: string, role: string) {
+  private async assertRoleExists(clubId: string, role: string) {
     if (SYSTEM_ROLE_NAMES.includes(role)) return;
     const custom = await this.customRoles.findOneBy({
-      organizationId: orgId,
+      organizationId: clubId,
       role,
     });
     if (!custom) throw new BadRequestException("Rôle inconnu");
   }
 }
 
-function parsePermission(raw: string): OrgPermissions {
+function parsePermission(raw: string): ClubPermissions {
   try {
     return sanitizePermissions(JSON.parse(raw));
   } catch {

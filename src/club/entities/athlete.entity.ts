@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { MemberEntity } from "~/organization/entities/member.entity";
+import { MemberEntity } from "~/club/entities/member.entity";
 
 @Entity("athlete")
 export class AthleteEntity {

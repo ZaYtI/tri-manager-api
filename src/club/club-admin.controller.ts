@@ -16,60 +16,60 @@ import {
   type UserSession,
 } from "@thallesp/nestjs-better-auth";
 
-import { OrganizationService } from "./organization.service";
+import { ClubAdminService } from "./club-admin.service";
 import {
-  CreateOrganizationDto,
+  CreateClubDto,
   CreateRoleDto,
   InviteMemberDto,
   MemberRoleDto,
-  UpdateOrganizationDto,
+  UpdateClubDto,
   UpdateRoleDto,
-} from "./dto/organization.dto";
+} from "./dto/club.dto";
 
-@Controller("organizations")
+@Controller("clubs")
 @UseGuards(AuthGuard)
 @Roles(["admin"])
-export class OrganizationController {
-  constructor(private readonly organizations: OrganizationService) {}
+export class ClubAdminController {
+  constructor(private readonly clubs: ClubAdminService) {}
 
   @Get()
   findAll(@Paginate() query: PaginateQuery) {
-    return this.organizations.findAll(query);
+    return this.clubs.findAll(query);
   }
 
   @Post()
-  create(@Body() body: CreateOrganizationDto) {
-    return this.organizations.create(body.name, body.slug, body.ownerId);
+  create(@Body() body: CreateClubDto) {
+    return this.clubs.create(body.name, body.slug, body.ownerId);
   }
 
   @Get("permissions")
   getPermissions() {
-    return this.organizations.getStatements();
+    return this.clubs.getStatements();
   }
 
   @Get(":id")
   findOne(@Param("id") id: string) {
-    return this.organizations.findOne(id);
+    return this.clubs.findOne(id);
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() body: UpdateOrganizationDto) {
-    return this.organizations.update(id, body);
+  update(@Param("id") id: string, @Body() body: UpdateClubDto) {
+    return this.clubs.update(id, body);
   }
 
   @Delete(":id")
   remove(@Param("id") id: string) {
-    return this.organizations.remove(id);
+    return this.clubs.remove(id);
   }
 
   @Get(":id/roles")
   listRoles(@Param("id") id: string) {
-    return this.organizations.listRoles(id);
+    return this.clubs.listRoles(id);
   }
 
   @Post(":id/roles")
   createRole(@Param("id") id: string, @Body() body: CreateRoleDto) {
-    return this.organizations.createRole(id, body);
+    return this.clubs.createRole(id, body);
   }
 
   @Patch(":id/roles/:roleId")
@@ -78,17 +78,17 @@ export class OrganizationController {
     @Param("roleId") roleId: string,
     @Body() body: UpdateRoleDto,
   ) {
-    return this.organizations.updateRole(id, roleId, body);
+    return this.clubs.updateRole(id, roleId, body);
   }
 
   @Delete(":id/roles/:roleId")
   deleteRole(@Param("id") id: string, @Param("roleId") roleId: string) {
-    return this.organizations.deleteRole(id, roleId);
+    return this.clubs.deleteRole(id, roleId);
   }
 
   @Get(":id/invitations")
   listInvitations(@Param("id") id: string) {
-    return this.organizations.listInvitations(id);
+    return this.clubs.listInvitations(id);
   }
 
   @Post(":id/members/invite")
@@ -97,12 +97,7 @@ export class OrganizationController {
     @Body() body: InviteMemberDto,
     @Session() session: UserSession,
   ) {
-    return this.organizations.inviteMember(
-      id,
-      body.email,
-      body.role,
-      session.user.id,
-    );
+    return this.clubs.inviteMember(id, body.email, body.role, session.user.id);
   }
 
   @Delete(":id/invitations/:invitationId")
@@ -110,7 +105,7 @@ export class OrganizationController {
     @Param("id") id: string,
     @Param("invitationId") invitationId: string,
   ) {
-    return this.organizations.cancelInvitation(id, invitationId);
+    return this.clubs.cancelInvitation(id, invitationId);
   }
 
   @Patch(":id/members/:memberId")
@@ -119,11 +114,11 @@ export class OrganizationController {
     @Param("memberId") memberId: string,
     @Body() body: MemberRoleDto,
   ) {
-    return this.organizations.updateMemberRole(id, memberId, body.role);
+    return this.clubs.updateMemberRole(id, memberId, body.role);
   }
 
   @Delete(":id/members/:memberId")
   removeMember(@Param("id") id: string, @Param("memberId") memberId: string) {
-    return this.organizations.removeMember(id, memberId);
+    return this.clubs.removeMember(id, memberId);
   }
 }

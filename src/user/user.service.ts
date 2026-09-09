@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
-import { MemberEntity } from "~/organization/entities/member.entity";
+import { MemberEntity } from "~/club/entities/member.entity";
 
 @Injectable()
 export class UserService {
@@ -33,7 +33,7 @@ export class UserService {
 
     const memberships = await this.memberRepository.find({
       where: { userId: id },
-      relations: ["organization"],
+      relations: ["club"],
     });
 
     return {
@@ -42,10 +42,10 @@ export class UserService {
         memberId: m.id,
         role: m.role,
         joinedAt: m.createdAt,
-        organization: {
-          id: m.organization.id,
-          name: m.organization.name,
-          slug: m.organization.slug,
+        club: {
+          id: m.club.id,
+          name: m.club.name,
+          slug: m.club.slug,
         },
       })),
     };

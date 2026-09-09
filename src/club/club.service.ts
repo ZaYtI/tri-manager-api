@@ -2,13 +2,13 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-import { OrganizationEntity } from "~/organization/entities/organization.entity";
-import { MemberEntity } from "~/organization/entities/member.entity";
-import { OrganizationService } from "~/organization/organization.service";
-import { OrgPermissions } from "~/organization/config/roles.config";
+import { ClubEntity } from "~/club/entities/club.entity";
+import { MemberEntity } from "~/club/entities/member.entity";
+import { ClubAdminService } from "~/club/club-admin.service";
+import { ClubPermissions } from "~/club/config/roles.config";
 
 export interface ClubSpace {
-  organization: {
+  club: {
     id: string;
     name: string;
     slug: string;
@@ -17,56 +17,52 @@ export interface ClubSpace {
   member: {
     id: string;
     role: string;
-    permissions: OrgPermissions;
+    permissions: ClubPermissions;
   };
 }
 
 @Injectable()
 export class ClubService {
   constructor(
-    @InjectRepository(OrganizationEntity)
-    private readonly organizations: Repository<OrganizationEntity>,
+    @InjectRepository(ClubEntity)
+    private readonly clubs: Repository<ClubEntity>,
     @InjectRepository(MemberEntity)
     private readonly members: Repository<MemberEntity>,
-    private readonly organizationService: OrganizationService,
+    private readonly clubAdmin: ClubAdminService,
   ) {}
 
   async getSpaceForCaller(
     userId: string,
-    activeOrganizationId?: string,
+    activeClubId?: string,
   ): Promise<ClubSpace> {
-    if (!activeOrganizationId) {
-      throw new NotFoundException("Aucune organisation active");
+    if (!activeClubId) {
+      throw new NotFoundException("Aucun club actif");
     }
 
     const member = await this.members.findOneBy({
       userId,
-      organizationId: activeOrganizationId,
+      organizationId: activeClubId,
     });
     if (!member) {
-      throw new NotFoundException(
-        "Vous n'êtes pas membre de cette organisation",
-      );
+      throw new NotFoundException("Vous n'êtes pas membre de ce club");
     }
 
-    const organization = await this.organizations.findOneBy({
-      id: activeOrganizationId,
-    });
-    if (!organization) {
-      throw new NotFoundException("Organisation introuvable");
+    const club = await this.clubs.findOneBy({ id: activeClubId });
+    if (!club) {
+      throw new NotFoundException("Club introuvable");
     }
 
-    const permissions = await this.organizationService.resolveRolePermissions(
-      activeOrganizationId,
+    const permissions = await this.clubAdmin.resolveRolePermissions(
+      activeClubId,
       member.role,
     );
 
     return {
-      organization: {
-        id: organization.id,
-        name: organization.name,
-        slug: organization.slug,
-        createdAt: organization.createdAt,
+      club: {
+        id: club.id,
+        name: club.name,
+        slug: club.slug,
+        createdAt: club.createdAt,
       },
       member: {
         id: member.id,

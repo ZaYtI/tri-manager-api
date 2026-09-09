@@ -3,7 +3,7 @@ import { betterAuth } from "better-auth";
 import { Pool } from "pg";
 import { admin, organization } from "better-auth/plugins";
 import { sharedAuthEvents } from "../providers/auth-events.provider";
-import { ac, roles } from "~/organization/config/roles.config";
+import { ac, roles } from "~/club/config/roles.config";
 
 type AuthEmailArgs = {
   user: { email: string; name?: string };

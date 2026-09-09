@@ -1,7 +1,7 @@
 import { Entity, PrimaryColumn, Column } from "typeorm";
 
 @Entity("organizationRole", { synchronize: false })
-export class OrganizationRoleEntity {
+export class ClubRoleEntity {
   @PrimaryColumn()
   id: string;
 

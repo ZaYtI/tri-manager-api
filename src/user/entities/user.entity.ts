@@ -6,7 +6,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { MemberEntity } from "~/organization/entities/member.entity";
+import { MemberEntity } from "~/club/entities/member.entity";
 
 @Entity("user", { synchronize: false })
 export class User {

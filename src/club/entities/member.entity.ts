@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from "typeorm";
-import { OrganizationEntity } from "./organization.entity";
+import { ClubEntity } from "./club.entity";
 import { User } from "~/user/entities/user.entity";
 
 @Entity("member", { synchronize: false })
@@ -16,9 +16,9 @@ export class MemberEntity {
   @Column({ default: "member" })
   role: string;
 
-  @ManyToOne(() => OrganizationEntity, (org) => org.members)
+  @ManyToOne(() => ClubEntity, (club) => club.members)
   @JoinColumn({ name: "organizationId" })
-  organization: OrganizationEntity;
+  club: ClubEntity;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: "userId" })
