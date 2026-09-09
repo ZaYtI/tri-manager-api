@@ -2,15 +2,12 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
-import { MemberEntity } from "~/organization/entities/member.entity";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(MemberEntity)
-    private readonly memberRepository: Repository<MemberEntity>,
   ) {}
 
   async findOne(id: string) {
@@ -31,23 +28,6 @@ export class UserService {
     });
     if (!user) throw new NotFoundException("Utilisateur introuvable");
 
-    const memberships = await this.memberRepository.find({
-      where: { userId: id },
-      relations: ["organization"],
-    });
-
-    return {
-      ...user,
-      memberships: memberships.map((m) => ({
-        memberId: m.id,
-        role: m.role,
-        joinedAt: m.createdAt,
-        organization: {
-          id: m.organization.id,
-          name: m.organization.name,
-          slug: m.organization.slug,
-        },
-      })),
-    };
+    return user;
   }
 }

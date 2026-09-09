@@ -2,11 +2,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { MemberEntity } from "~/organization/entities/member.entity";
 
 @Entity("user", { synchronize: false })
 export class User {
@@ -42,7 +40,4 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @OneToMany(() => MemberEntity, (member) => member.user)
-  members: MemberEntity[];
 }
