@@ -31,6 +31,7 @@ export async function makeOrganization(
   options: MakeOrganizationOptions = {},
 ): Promise<{
   id: string;
+  name: string;
   presidentId: string;
   coachIds: string[];
   athleteIds: string[];
@@ -55,5 +56,5 @@ export async function makeOrganization(
     );
   }
 
-  return { id, presidentId, coachIds, athleteIds };
+  return { id, name, presidentId, coachIds, athleteIds };
 }
