@@ -53,4 +53,23 @@ export class AuditService {
       maxLimit: 100,
     });
   }
+
+  findAllForOrganization(
+    organizationId: string,
+    query: PaginateQuery,
+  ): Promise<Paginated<AuditLogEntity>> {
+    return paginate(query, this.logs, {
+      sortableColumns: ["createdAt", "action"],
+      searchableColumns: ["action", "actorEmail", "targetLabel"],
+      filterableColumns: {
+        action: true,
+        actorId: true,
+        targetType: true,
+        targetId: true,
+      },
+      defaultSortBy: [["createdAt", "DESC"]],
+      maxLimit: 100,
+      where: { organizationId },
+    });
+  }
 }
