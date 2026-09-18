@@ -94,6 +94,10 @@ export const auth = betterAuth({
       },
       invitationExpiresIn: 60 * 60 * 24 * 7,
       sendInvitationEmail: emitInvitationEmail,
+      teams: {
+        enabled: true,
+        maxTeamsPerOrganization: 5,
+      },
     }),
   ],
 });

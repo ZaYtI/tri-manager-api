@@ -8,6 +8,7 @@ import { OrganizationController } from "./organization.controller";
 import { MemberModule } from "./member/member.module";
 import { InvitationModule } from "./invitation/invitation.module";
 import { RoleModule } from "./role/role.module";
+import { TeamModule } from "./team/team.module";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { RoleModule } from "./role/role.module";
     MemberModule,
     InvitationModule,
     RoleModule,
+    TeamModule,
   ],
   controllers: [OrganizationController],
   providers: [OrganizationService],

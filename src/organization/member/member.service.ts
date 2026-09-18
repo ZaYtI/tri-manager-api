@@ -15,6 +15,7 @@ import {
 import type { UserSession } from "@thallesp/nestjs-better-auth";
 
 import { RoleService } from "~/organization/role/role.service";
+import { TeamService } from "~/organization/team/team.service";
 import { AuditService } from "~/audit/audit.service";
 import { AUDIT_ACTIONS } from "~/audit/audit.constants";
 import { AuditActor } from "~/audit/audit.types";
@@ -26,6 +27,10 @@ import { OrgViewer } from "./member.types";
 
 const APP_ADMIN_ROLE = "admin";
 
+export type MemberWithGroups = MemberEntity & {
+  groups: { id: string; name: string }[];
+};
+
 @Injectable()
 export class MemberService {
   constructor(
@@ -34,6 +39,7 @@ export class MemberService {
     @InjectRepository(OrganizationEntity)
     private readonly organizations: Repository<OrganizationEntity>,
     private readonly roles: RoleService,
+    private readonly teams: TeamService,
     private readonly audit: AuditService,
   ) {}
 
@@ -64,14 +70,14 @@ export class MemberService {
   async findAll(
     orgId: string,
     query: PaginateQuery,
-  ): Promise<Paginated<MemberEntity>> {
+  ): Promise<Paginated<MemberWithGroups>> {
     await this.getOrgOrFail(orgId);
 
     const qb = this.members
       .createQueryBuilder("member")
       .where("member.organizationId = :orgId", { orgId });
 
-    return paginate(query, qb, {
+    const result = await paginate(query, qb, {
       relations: ["user"],
       select: MEMBER_LIST_COLUMNS,
       sortableColumns: ["createdAt", "role", "user.name", "user.email"],
@@ -79,6 +85,15 @@ export class MemberService {
       filterableColumns: { role: true, "user.banned": true },
       defaultSortBy: [["createdAt", "ASC"]],
     });
+
+    const userIds = result.data.map((m) => m.userId);
+    const groupsByUser = await this.teams.findGroupsByUserIds(orgId, userIds);
+    const data: MemberWithGroups[] = result.data.map((m) => ({
+      ...m,
+      groups: groupsByUser.get(m.userId) ?? [],
+    }));
+
+    return { ...result, data };
   }
 
   async findOne(orgId: string, memberId: string) {
