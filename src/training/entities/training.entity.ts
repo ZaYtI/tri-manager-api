@@ -3,17 +3,18 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 
 import { OrganizationEntity } from "~/organization/entities/organization.entity";
+import { TeamEntity } from "~/organization/team/entities/team.entity";
+import { User } from "~/user/entities/user.entity";
 import { LocationEntity } from "~/training/location/entities/location.entity";
 import { DisciplineEntity } from "~/training/discipline/entities/discipline.entity";
-import { TrainingCoachEntity } from "./training-coach.entity";
-import { TrainingTeamEntity } from "./training-team.entity";
 
 export type TrainingStatus = "scheduled" | "cancelled";
 
@@ -73,9 +74,19 @@ export class TrainingEntity {
   @JoinColumn({ name: "disciplineId" })
   discipline: DisciplineEntity | null;
 
-  @OneToMany(() => TrainingCoachEntity, (link) => link.training)
-  trainingCoaches: TrainingCoachEntity[];
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: "training_coach",
+    joinColumn: { name: "trainingId" },
+    inverseJoinColumn: { name: "coachId" },
+  })
+  coaches: User[];
 
-  @OneToMany(() => TrainingTeamEntity, (link) => link.training)
-  trainingTeams: TrainingTeamEntity[];
+  @ManyToMany(() => TeamEntity)
+  @JoinTable({
+    name: "training_team",
+    joinColumn: { name: "trainingId" },
+    inverseJoinColumn: { name: "teamId" },
+  })
+  teams: TeamEntity[];
 }

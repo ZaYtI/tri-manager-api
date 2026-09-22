@@ -11,30 +11,17 @@ import { AuditService } from "~/audit/audit.service";
 import { AUDIT_ACTIONS } from "~/audit/audit.constants";
 import { AuditActor } from "~/audit/audit.types";
 import { TrainingEntity } from "./entities/training.entity";
-import { TrainingCoachEntity } from "./entities/training-coach.entity";
-import { TrainingTeamEntity } from "./entities/training-team.entity";
 import { CreateTrainingDto } from "./dto/create-training.dto";
 import { UpdateTrainingDto } from "./dto/update-training.dto";
 import { CancelTrainingDto } from "./dto/cancel-training.dto";
 
-const TRAINING_RELATIONS = [
-  "location",
-  "discipline",
-  "trainingCoaches",
-  "trainingCoaches.coach",
-  "trainingTeams",
-  "trainingTeams.team",
-];
+const TRAINING_RELATIONS = ["location", "discipline", "coaches", "teams"];
 
 @Injectable()
 export class TrainingService {
   constructor(
     @InjectRepository(TrainingEntity)
     private readonly trainings: Repository<TrainingEntity>,
-    @InjectRepository(TrainingCoachEntity)
-    private readonly trainingCoaches: Repository<TrainingCoachEntity>,
-    @InjectRepository(TrainingTeamEntity)
-    private readonly trainingTeams: Repository<TrainingTeamEntity>,
     private readonly audit: AuditService,
   ) {}
 
@@ -60,7 +47,13 @@ export class TrainingService {
     });
     await this.trainings.save(training);
 
-    await this.setCoaches(training.id, dto.coachIds ?? []);
+    const coachIds =
+      dto.coachIds && dto.coachIds.length > 0
+        ? dto.coachIds
+        : actor?.id
+          ? [actor.id]
+          : [];
+    await this.setCoaches(training.id, coachIds);
     await this.setTeams(training.id, dto.teamIds ?? []);
 
     await this.audit.record({
@@ -183,21 +176,29 @@ export class TrainingService {
     trainingId: string,
     coachIds: string[],
   ): Promise<void> {
-    await this.trainingCoaches.delete({ trainingId });
-    if (coachIds.length === 0) return;
-    const rows = [...new Set(coachIds)].map((coachId) =>
-      this.trainingCoaches.create({ trainingId, coachId }),
+    await this.trainings.manager.query(
+      `DELETE FROM "training_coach" WHERE "trainingId" = $1`,
+      [trainingId],
     );
-    await this.trainingCoaches.save(rows);
+    if (coachIds.length === 0) return;
+    await this.trainings
+      .createQueryBuilder()
+      .relation(TrainingEntity, "coaches")
+      .of(trainingId)
+      .add([...new Set(coachIds)]);
   }
 
   private async setTeams(trainingId: string, teamIds: string[]): Promise<void> {
-    await this.trainingTeams.delete({ trainingId });
-    if (teamIds.length === 0) return;
-    const rows = [...new Set(teamIds)].map((teamId) =>
-      this.trainingTeams.create({ trainingId, teamId }),
+    await this.trainings.manager.query(
+      `DELETE FROM "training_team" WHERE "trainingId" = $1`,
+      [trainingId],
     );
-    await this.trainingTeams.save(rows);
+    if (teamIds.length === 0) return;
+    await this.trainings
+      .createQueryBuilder()
+      .relation(TrainingEntity, "teams")
+      .of(trainingId)
+      .add([...new Set(teamIds)]);
   }
 
   private assertValidRange(startsAt: Date, endsAt: Date): void {
