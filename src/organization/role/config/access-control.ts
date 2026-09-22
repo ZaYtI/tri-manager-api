@@ -42,6 +42,7 @@ export const DEFAULT_ORG_ROLES: { role: string; permission: OrgPermission }[] =
       permission: {
         member: ["create", "update"],
         invitation: ["create", "cancel"],
+        training: ["create", "update", "cancel"],
       },
     },
     {
