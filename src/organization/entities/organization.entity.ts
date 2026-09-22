@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from "typeorm";
-import { TrainingEntity } from "~/training/entities/training.entity";
+import { TrainingEntity } from "~/organization/training/entities/training.entity";
 
 @Entity("organization", { synchronize: false })
 export class OrganizationEntity {

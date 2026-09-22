@@ -6,7 +6,7 @@ import {
 
 export const orgStatement = {
   ...defaultStatements,
-  training: ["create", "update", "cancel"],
+  training: ["create", "update", "cancel", "delete"],
 } as const;
 
 export const orgAccessControl = createAccessControl(orgStatement);
@@ -15,7 +15,7 @@ export type OrgPermission = Record<string, string[]>;
 
 const fullPermissionStatements = {
   ...ownerAc.statements,
-  training: ["create", "update", "cancel"],
+  training: ["create", "update", "cancel", "delete"],
 } as const;
 
 export const FULL_PERMISSION =
@@ -42,7 +42,7 @@ export const DEFAULT_ORG_ROLES: { role: string; permission: OrgPermission }[] =
       permission: {
         member: ["create", "update"],
         invitation: ["create", "cancel"],
-        training: ["create", "update", "cancel"],
+        training: ["create", "update", "cancel", "delete"],
       },
     },
     {

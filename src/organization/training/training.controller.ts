@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -66,5 +67,15 @@ export class TrainingController {
     @CurrentActor() actor: AuditActor,
   ) {
     return this.trainingService.cancel(orgId, id, cancelTrainingDto, actor);
+  }
+
+  @Delete(":id")
+  @RequireOrgPermission({ training: ["delete"] })
+  remove(
+    @Param("orgId") orgId: string,
+    @Param("id") id: string,
+    @CurrentActor() actor: AuditActor,
+  ) {
+    return this.trainingService.remove(orgId, id, actor);
   }
 }

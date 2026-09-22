@@ -163,6 +163,20 @@ export class TrainingService {
     return training;
   }
 
+  async remove(orgId: string, id: string, actor?: AuditActor): Promise<void> {
+    const training = await this.getOrFail(orgId, id);
+    await this.trainings.delete({ id: training.id });
+
+    await this.audit.record({
+      action: AUDIT_ACTIONS.TRAINING_DELETED,
+      actor,
+      targetType: "training",
+      targetId: training.id,
+      targetLabel: training.title,
+      organizationId: orgId,
+    });
+  }
+
   private async getOrFail(orgId: string, id: string): Promise<TrainingEntity> {
     const training = await this.trainings.findOne({
       where: { id, organizationId: orgId },

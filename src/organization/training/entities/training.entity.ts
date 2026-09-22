@@ -13,8 +13,8 @@ import {
 import { OrganizationEntity } from "~/organization/entities/organization.entity";
 import { TeamEntity } from "~/organization/team/entities/team.entity";
 import { User } from "~/user/entities/user.entity";
-import { LocationEntity } from "~/training/location/entities/location.entity";
-import { DisciplineEntity } from "~/training/discipline/entities/discipline.entity";
+import { LocationEntity } from "~/organization/training/location/entities/location.entity";
+import { DisciplineEntity } from "~/organization/training/discipline/entities/discipline.entity";
 
 export type TrainingStatus = "scheduled" | "cancelled";
 

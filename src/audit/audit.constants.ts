@@ -24,6 +24,7 @@ export const AUDIT_ACTIONS = {
   TRAINING_CREATED: "training.created",
   TRAINING_UPDATED: "training.updated",
   TRAINING_CANCELLED: "training.cancelled",
+  TRAINING_DELETED: "training.deleted",
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];
