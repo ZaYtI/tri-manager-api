@@ -6,16 +6,23 @@ import {
 
 export const orgStatement = {
   ...defaultStatements,
+  training: ["create", "update", "cancel"],
 } as const;
 
 export const orgAccessControl = createAccessControl(orgStatement);
 
 export type OrgPermission = Record<string, string[]>;
 
-export const FULL_PERMISSION = ownerAc.statements as OrgPermission;
+const fullPermissionStatements = {
+  ...ownerAc.statements,
+  training: ["create", "update", "cancel"],
+} as const;
+
+export const FULL_PERMISSION =
+  fullPermissionStatements as unknown as OrgPermission;
 
 export const creatorRoleDefinition = orgAccessControl.newRole(
-  ownerAc.statements,
+  fullPermissionStatements,
 );
 
 export const orgRoles: Record<string, typeof creatorRoleDefinition> = {
@@ -45,6 +52,7 @@ export const DEFAULT_ORG_ROLES: { role: string; permission: OrgPermission }[] =
         invitation: [],
         team: [],
         ac: [],
+        training: [],
       },
     },
   ];

@@ -1,4 +1,5 @@
-import { Entity, PrimaryColumn, Column } from "typeorm";
+import { Entity, PrimaryColumn, Column, OneToMany } from "typeorm";
+import { TrainingEntity } from "~/training/entities/training.entity";
 
 @Entity("organization", { synchronize: false })
 export class OrganizationEntity {
@@ -13,6 +14,9 @@ export class OrganizationEntity {
 
   @Column({ default: true })
   active: boolean;
+
+  @OneToMany(() => TrainingEntity, (training) => training.organization)
+  trainings: TrainingEntity[];
 
   @Column()
   createdAt: Date;

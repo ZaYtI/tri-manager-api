@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import { OrganizationEntity } from "~/organization/entities/organization.entity";
 
 @Entity("team", { synchronize: false })
 export class TeamEntity {
@@ -10,6 +11,10 @@ export class TeamEntity {
 
   @Column()
   organizationId: string;
+
+  @ManyToOne(() => OrganizationEntity)
+  @JoinColumn({ name: "organizationId" })
+  organization: OrganizationEntity;
 
   @Column()
   createdAt: Date;

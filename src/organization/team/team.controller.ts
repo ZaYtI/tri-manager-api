@@ -19,10 +19,7 @@ export class TeamController {
 
   @Get(":teamId/members")
   @RequireOrgPermission({ member: [] })
-  listMembers(
-    @Param("orgId") orgId: string,
-    @Param("teamId") teamId: string,
-  ) {
+  listMembers(@Param("orgId") orgId: string, @Param("teamId") teamId: string) {
     return this.teams.listMembers(orgId, teamId);
   }
 }

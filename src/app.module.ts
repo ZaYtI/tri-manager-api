@@ -9,6 +9,7 @@ import { AuthModule } from "./auth/auth.module";
 import { AuditModule } from "./audit/audit.module";
 import { OrganizationModule } from "./organization/organization.module";
 import { UserModule } from "./user/user.module";
+import { TrainingModule } from "./training/training.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UserModule } from "./user/user.module";
     MailModule,
     OrganizationModule,
     UserModule,
+    TrainingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

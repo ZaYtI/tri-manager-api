@@ -21,6 +21,9 @@ export const AUDIT_ACTIONS = {
   ROLE_CREATED: "role.created",
   ROLE_UPDATED: "role.updated",
   ROLE_DELETED: "role.deleted",
+  TRAINING_CREATED: "training.created",
+  TRAINING_UPDATED: "training.updated",
+  TRAINING_CANCELLED: "training.cancelled",
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];
@@ -30,4 +33,5 @@ export type AuditTargetType =
   | "organization"
   | "member"
   | "invitation"
-  | "role";
+  | "role"
+  | "training";
